@@ -1,0 +1,14 @@
+{
+    "Name": "Oulubusviz",
+    "Description": "Real time bus visualization for Oulu",
+    "Txml": "scene.txml",
+    "Img": "application.jpg",
+    "SourceDir": "",
+    "SourceWebRocket": "oulubusvizhandler.webrocketjs",
+    "SourceRocket": "",
+    "CompatibleWebRocket": true,
+    "CompatibleRocket": false,
+    "CompatibleServer": false,
+    "Layers": []
+}
+

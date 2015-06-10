@@ -1,0 +1,87 @@
+var OulubusvizHandler = IApplication.$extend(
+{
+    __init__ : function()
+    {
+        this.$super("Oulubusviz");
+
+        this.timing = new AsyncHelper(this.name, this);
+        this.state =
+        {
+            camera : {}
+        };
+
+        // Monitor active camera change
+        var activeCamera = Tundra.renderer.activeCameraEntity();
+        if (activeCamera != null && activeCamera.camera != null)
+            this.onActiveCameraChanged(activeCamera.camera);
+
+        this.subscribeEvent(Tundra.renderer.onActiveCameraChanged(this, this.onActiveCameraChanged));
+
+        // Run RTS camera application
+        this.rts = {};
+        this.rts.ent = Tundra.client.runApplication("RTS", "meshmoon-applications://meshmoon/rts-camera/rts-camera.webrocketjs");
+        this.rts.ent.script.onScriptStarted(function(entity, component, scriptAsset, app) {
+            this.rts.app = app;
+        }.bind(this));
+
+        // You can turn on debugging to see more internals
+        //Tundra.plugins.meshmoonGeo.config.debug = true; // and/or
+        //Tundra.plugins.meshmoonGeo.config.debugVolume = true;
+        
+        /* Run Meshmoon GEO at Oulu city center
+           You can change this coordinate to be anywhere in the world
+           and Meshmoon GEO will do its best to visualize the location. */
+        Tundra.plugins.meshmoonGeo.start({
+            lon : 25.466228,
+            lat : 65.013439
+        });
+
+        // Setup default environment
+        Tundra.plugins.meshmoonGeo.setupEnvironment();
+        // Connect the prerender function
+        Tundra.frame.onPreRender(this, this.onPreRender);
+    },
+
+    onPreRender : function()
+    {
+    
+    },
+
+    onActiveCameraChanged : function(activeCameraComponent, prevCameraComponent)
+    {
+        var cameraName = (activeCameraComponent.parentEntity ? activeCameraComponent.parentEntity.name : "");
+        if (cameraName === "" || !cameraName)
+            return;
+
+        // Adjust far plane to handle big scene for Meshmoon GEO functionality
+        this.camera = activeCameraComponent.parentEntity;
+        this.camera.camera.farPlane = 1000000;
+
+        this.log.debug("Active camera changed", this.camera.name);
+
+        // If RTS camera execute configuration
+        if (this.camera.name === "MeshmoonRtsCamera" && this.state.camera.configured === undefined)
+        {
+            this.state.camera.configured = true;
+            this.timing.async("rts.config", function() {
+                this.camera.exec(EntityAction.Local, "SetRotation", { x : -40, y : 0, z : 0 });
+                this.camera.exec(EntityAction.Local, "SetDistance", 3000);
+                this.camera.exec(EntityAction.Local, "SetMinDistance", 200);
+                this.camera.exec(EntityAction.Local, "SetMaxDistance", this.camera.camera.farPlane * 0.4);
+            }, 100);
+        }
+    },
+
+    /** 
+        Script destroy/unload handler. Called automatically 
+        by the framework when the application is closed.
+    */
+    onScriptDestroyed : function()
+    {
+        Tundra.plugins.meshmoonGeo.stop();
+    }
+});
+
+// Start the application by instantiating it
+var oulubusvizHandler = new OulubusvizHandler();
+
