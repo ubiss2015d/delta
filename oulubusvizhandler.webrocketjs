@@ -60,6 +60,8 @@ function addCar(object, x, y, z, s) {
 	object.root.receiveShadow = true;
 }
 
+var highlighted_route;
+
 var OulubusvizHandler = IApplication.$extend(
 {
 	
