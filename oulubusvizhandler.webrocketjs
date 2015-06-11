@@ -1,5 +1,70 @@
 var OulubusvizHandler = IApplication.$extend(
 {
+	
+	addCar:function (object, x, y, z, s) {
+		console.log("Add car");
+
+		object.root.position.set(x, y, z);
+		Tundra.renderer.scene.add(object.root); // add object to the Meshmoon scene
+
+		object.root.castShadow = true;
+		object.root.receiveShadow = true;
+	},
+	parse_coord: function(str)
+	{
+		var coordArray = str.split(' ');
+		var lat = parseFloat(coordArray[1]);
+		var lon = parseFloat(coordArray[0]);
+		
+		var coord = {};
+		if (!isNaN(lat))
+			coord.lat = lat;
+		if (!isNaN(lon))
+			coord.lon = lon;
+		
+		return coord;
+	},
+	
+	xmlToJson : function(xml) 
+	{
+	
+		// Create the return object
+		var obj = {};
+
+		if (xml.nodeType == 1) { // element
+			// do attributes
+			if (xml.attributes.length > 0) {
+			obj["@attributes"] = {};
+				for (var j = 0; j < xml.attributes.length; j++) {
+					var attribute = xml.attributes.item(j);
+					obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+				}
+			}
+		} else if (xml.nodeType == 3) { // text
+			obj = xml.nodeValue;
+		}
+
+		// do children
+		if (xml.hasChildNodes()) {
+			for(var i = 0; i < xml.childNodes.length; i++) {
+				var item = xml.childNodes.item(i);
+				var nodeName = item.nodeName;
+				if (typeof(obj[nodeName]) == "undefined") {
+					obj[nodeName] = this.xmlToJson(item);
+				} else {
+					if (typeof(obj[nodeName].push) == "undefined") {
+						var old = obj[nodeName];
+						obj[nodeName] = [];
+						obj[nodeName].push(old);
+					}
+					obj[nodeName].push(this.xmlToJson(item));
+				}
+			}
+		}
+		return obj;
+	},
+	
+	
     __init__ : function()
     {
         this.$super("Oulubusviz");
@@ -35,11 +100,103 @@ var OulubusvizHandler = IApplication.$extend(
             lon : 25.466228,
             lat : 65.013439
         });
+		
+		IApplication.loadDependencies(this,
+			"Car.js"
+		).done(function()
+		{
+			this.onDependenciesLoaded();
+		}.bind(this));
 
         // Setup default environment
         Tundra.plugins.meshmoonGeo.setupEnvironment();
         // Connect the prerender function
         Tundra.frame.onPreRender(this, this.onPreRender);
+    },
+	
+	onDependenciesLoaded : function()
+	{
+        // Monitor active camera change
+        var activeCamera = Tundra.renderer.activeCameraEntity();
+        if (activeCamera != null && activeCamera.camera != null)
+            this.onActiveCameraChanged(activeCamera.camera);
+
+        this.subscribeEvent(Tundra.renderer.onActiveCameraChanged(this, this.onActiveCameraChanged));
+
+        // Run RTS camera application
+        this.rts = {};
+        this.rts.ent = Tundra.client.runApplication("RTS", "meshmoon-applications://meshmoon/rts-camera/rts-camera.webrocketjs");
+        this.rts.ent.script.onScriptStarted(function(entity, component, scriptAsset, app) {
+            this.rts.app = app;
+        }.bind(this));
+
+        // You can turn on debugging to see more internals
+        //Tundra.plugins.meshmoonGeo.config.debug = true; // and/or
+        //Tundra.plugins.meshmoonGeo.config.debugVolume = true;
+        
+        /* Run Meshmoon GEO at Oulu city center
+           You can change this coordinate to be anywhere in the world
+           and Meshmoon GEO will do its best to visualize the location. */
+        Tundra.plugins.meshmoonGeo.start({
+            lon : 25.466228,
+            lat : 65.013439
+        });
+		
+		//billboard
+		this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+        // ent.component("Billboard"
+        this.ent.component("Name").value = "test_billboard";
+        //ent.component("Placeable").transform.pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
+        var poz = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
+        this.ent.component("Billboard").height = 150.0;
+        this.ent.component("Billboard").width = 150.0;
+        this.ent.component("Placeable").setPosition(poz.x, 150.0, poz.z);
+        this.ent.component("Billboard").materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
+		this.asd = 65.013439;
+		
+		// Get the camera XML file and assign callback function 
+		this.car = new THREE.Car();
+		console.log("The CAR:", this.car);
+
+		this.car.modelScale = 2; // size of the car
+		this.car.backWheelOffset = 0.02;
+
+		this.car.MAX_SPEED = 0.9; //25
+		this.car.MAX_REVERSE_SPEED = -0.5; //-15
+		this.car.FRONT_ACCELERATION = 0.4; //12
+		this.car.BACK_ACCELERATION = 0.5; //15
+
+		this.car.WHEEL_ANGULAR_ACCELERATION = 1; //1.5
+
+		this.car.FRONT_DECCELERATION = 0.5 //10
+		this.car.WHEEL_ANGULAR_DECCELERATION = 1; //1.0
+
+		this.car.STEERING_RADIUS_RATIO = 0.23; //0.23
+		
+		this.car.carOrientation = 120;
+		this.car.currentLat = 65.015709;
+		this.car.currentLon = 25.470789;
+
+		this.car.callback = function(object) {
+			var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(this.car.currentLat, this.car.currentLon); //first position of the car
+			var direction = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.016475, 25.469689);
+			this.car.root.lookAt(new THREE.Vector3( direction.x, 0, direction.z ));
+			this.addCar(object, pos.x, 0, pos.z, 1); //10
+		}.bind(this);
+
+		this.car.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
+		console.log('11111111111');
+		//console.log(controlsCar.moveForward);
+		//controlsCar.moveForward = true;
+		Tundra.frame.onUpdate(this, this.onFrameUpdate);
+		Tundra.frame.onPreRender(this, this.onPreRender);
+		
+		this.subscribeEvent(Tundra.input.onMousePress(this, this.onMousePress));
+		
+        // Setup default environment
+        Tundra.plugins.meshmoonGeo.setupEnvironment();
+		
+		
     },
 
     onPreRender : function()
