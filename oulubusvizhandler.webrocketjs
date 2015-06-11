@@ -113,7 +113,7 @@ function check_new_buses()
 					new_bus = new THREE.Car();
 					bus_id = make_car_id();
 					new_bus.id = bus_id;
-					new_bus.modelScale = 200; // size of the car
+					new_bus.modelScale = 2; // size of the car
 					new_bus.backWheelOffset = 0.02;
 					new_bus.MAX_SPEED = 0.9; //25
 					new_bus.MAX_REVERSE_SPEED = -0.5; //-15
@@ -158,14 +158,16 @@ function check_new_buses()
 					{
 						old_position = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(new_bus.trip_details[j-1].lat, new_bus.trip_details[j-1].lon);
 						new_position = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(new_bus.trip_details[j].lat, new_bus.trip_details[j].lon);
+						
 						tween = new TWEEN.Tween({ x: old_position.x, z: old_position.z })
 						.to({x: new_position.x, z: new_position.z}, new_bus.trip_details[j].time_to_go)
-						.easing(TWEEN.Easing.Elastic.InOut)
+						.easing(TWEEN.Easing.Linear.None)
 						.onUpdate(function()
 						{
 							new_bus.root.translateX(this.x);
 							new_bus.root.translateZ(this.z);
 						});
+						
 						new_bus.trip_details[j].tween = tween;
 						if (j>1)
 							new_bus.trip_details[j-1].tween.chain(new_bus.trip_details[j].tween);
@@ -192,8 +194,8 @@ function check_new_buses()
 		}
 	});
 	updated_time++;
-	if (updated_time <= 3)
-		setTimeout(check_new_buses, 5000);
+	//if (updated_time <= 3)
+	//	setTimeout(check_new_buses, 5000);
 }
 
 function drawHighlightedRoute(coordinates)
@@ -217,7 +219,7 @@ function drawHighlightedRoute(coordinates)
 		var lat = coordinates[i].lat;
 		var lon = coordinates[i].lon;
 		var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
-		pos.y = 25;
+		pos.y = 0;
 		line_geometry.vertices.push(pos);
 	}
 
