@@ -151,7 +151,7 @@ function check_new_buses()
 													lon: parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text']),
 													speed: 0});
 					}
-					console.log(new_bus.trip_details);
+					drawHighlightedRoute(new_bus.trip_details);
 					// add new bus to map
 					
 					new_bus.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
@@ -171,6 +171,36 @@ function check_new_buses()
 		}
 	});
 	setTimeout(check_new_buses, 5000);
+}
+
+function drawHighlightedRoute(coordinates)
+{
+	// TODO
+	// get actual coordinates...
+	if ( null == coordinates) {
+		coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+	}
+
+	// Remove the previous route
+	Tundra.renderer.scene.remove( this.highlighted_route );
+	
+	var line_material = new THREE.LineBasicMaterial({
+		color: 0x00ff00,
+		linewidth: 5
+		});
+
+	var line_geometry = new THREE.Geometry();
+	for (var i = 0; i < coordinates.length; i++) {
+		var lat = coordinates[i].lat;
+		var lon = coordinates[i].lon;
+		var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
+		pos.y = 25;
+		line_geometry.vertices.push(pos);
+	}
+
+	var line = new THREE.Line( line_geometry, line_material );
+	this.highlighted_route = line;
+	Tundra.renderer.scene.add( this.highlighted_route );
 }
 
 var OulubusvizHandler = IApplication.$extend(
@@ -334,36 +364,6 @@ var OulubusvizHandler = IApplication.$extend(
     onScriptDestroyed : function()
     {
         Tundra.plugins.meshmoonGeo.stop();
-    },
-
-    drawHighlightedRoute : function (coordinates)
-    {
-        // TODO
-        // get actual coordinates...
-        if ( null == coordinates) {
-            coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
-        }
-
-        // Remove the previous route
-        Tundra.renderer.scene.remove( this.highlighted_route );
-        
-        var line_material = new THREE.LineBasicMaterial({
-            color: 0x00ff00,
-            linewidth: 5
-            });
-
-        var line_geometry = new THREE.Geometry();
-        for (var i = 0; i < coordinates.length; i++) {
-            var lat = parseFloat(coordinates[i][0]);
-            var lon = parseFloat(coordinates[i][1]);
-            var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
-            pos.y = 25;
-            line_geometry.vertices.push(pos);
-        }
-
-        var line = new THREE.Line( line_geometry, line_material );
-        this.highlighted_route = line;
-        Tundra.renderer.scene.add( this.highlighted_route );
     },
 	
 	// begin thang
