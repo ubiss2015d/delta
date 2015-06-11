@@ -1,15 +1,68 @@
+function make_car_id()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 5; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+function xmlToJson(xml) 
+{
+
+	// Create the return object
+	var obj = {};
+
+	if (xml.nodeType == 1) { // element
+		// do attributes
+		if (xml.attributes.length > 0) {
+		obj["@attributes"] = {};
+			for (var j = 0; j < xml.attributes.length; j++) {
+				var attribute = xml.attributes.item(j);
+				obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+			}
+		}
+	} else if (xml.nodeType == 3) { // text
+		obj = xml.nodeValue;
+	}
+
+	// do children
+	if (xml.hasChildNodes()) {
+		for(var i = 0; i < xml.childNodes.length; i++) {
+			var item = xml.childNodes.item(i);
+			var nodeName = item.nodeName;
+			if (typeof(obj[nodeName]) == "undefined") {
+				obj[nodeName] = xmlToJson(item);
+			} else {
+				if (typeof(obj[nodeName].push) == "undefined") {
+					var old = obj[nodeName];
+					obj[nodeName] = [];
+					obj[nodeName].push(old);
+				}
+				obj[nodeName].push(xmlToJson(item));
+			}
+		}
+	}
+	return obj;
+}
+
+var running_busses = [];
+
+function addCar(object, x, y, z, s) {
+	console.log("Add car");
+
+	object.root.position.set(x, y, z);
+	Tundra.renderer.scene.add(object.root); // add object to the Meshmoon scene
+
+	object.root.castShadow = true;
+	object.root.receiveShadow = true;
+}
+
 var OulubusvizHandler = IApplication.$extend(
 {
 	
-	addCar:function (object, x, y, z, s) {
-		console.log("Add car");
-
-		object.root.position.set(x, y, z);
-		Tundra.renderer.scene.add(object.root); // add object to the Meshmoon scene
-
-		object.root.castShadow = true;
-		object.root.receiveShadow = true;
-	},
+	
 	parse_coord: function(str)
 	{
 		var coordArray = str.split(' ');
@@ -25,44 +78,7 @@ var OulubusvizHandler = IApplication.$extend(
 		return coord;
 	},
 	
-	xmlToJson : function(xml) 
-	{
 	
-		// Create the return object
-		var obj = {};
-
-		if (xml.nodeType == 1) { // element
-			// do attributes
-			if (xml.attributes.length > 0) {
-			obj["@attributes"] = {};
-				for (var j = 0; j < xml.attributes.length; j++) {
-					var attribute = xml.attributes.item(j);
-					obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
-				}
-			}
-		} else if (xml.nodeType == 3) { // text
-			obj = xml.nodeValue;
-		}
-
-		// do children
-		if (xml.hasChildNodes()) {
-			for(var i = 0; i < xml.childNodes.length; i++) {
-				var item = xml.childNodes.item(i);
-				var nodeName = item.nodeName;
-				if (typeof(obj[nodeName]) == "undefined") {
-					obj[nodeName] = this.xmlToJson(item);
-				} else {
-					if (typeof(obj[nodeName].push) == "undefined") {
-						var old = obj[nodeName];
-						obj[nodeName] = [];
-						obj[nodeName].push(old);
-					}
-					obj[nodeName].push(this.xmlToJson(item));
-				}
-			}
-		}
-		return obj;
-	},
 	
 	
     __init__ : function()
@@ -74,6 +90,7 @@ var OulubusvizHandler = IApplication.$extend(
         {
             camera : {}
         };
+		
 
         // Monitor active camera change
         var activeCamera = Tundra.renderer.activeCameraEntity();
@@ -107,6 +124,8 @@ var OulubusvizHandler = IApplication.$extend(
 		{
 			this.onDependenciesLoaded();
 		}.bind(this));
+		
+		this.check_new_buses();
 
         // Setup default environment
         Tundra.plugins.meshmoonGeo.setupEnvironment();
@@ -155,39 +174,9 @@ var OulubusvizHandler = IApplication.$extend(
 		this.asd = 65.013439;
 		
 		// Get the camera XML file and assign callback function 
-		this.car = new THREE.Car();
-		console.log("The CAR:", this.car);
 
-		this.car.modelScale = 2; // size of the car
-		this.car.backWheelOffset = 0.02;
+		//
 
-		this.car.MAX_SPEED = 0.9; //25
-		this.car.MAX_REVERSE_SPEED = -0.5; //-15
-		this.car.FRONT_ACCELERATION = 0.4; //12
-		this.car.BACK_ACCELERATION = 0.5; //15
-
-		this.car.WHEEL_ANGULAR_ACCELERATION = 1; //1.5
-
-		this.car.FRONT_DECCELERATION = 0.5 //10
-		this.car.WHEEL_ANGULAR_DECCELERATION = 1; //1.0
-
-		this.car.STEERING_RADIUS_RATIO = 0.23; //0.23
-		
-		this.car.carOrientation = 120;
-		this.car.currentLat = 65.015709;
-		this.car.currentLon = 25.470789;
-
-		this.car.callback = function(object) {
-			var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(this.car.currentLat, this.car.currentLon); //first position of the car
-			var direction = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.016475, 25.469689);
-			this.car.root.lookAt(new THREE.Vector3( direction.x, 0, direction.z ));
-			this.addCar(object, pos.x, 0, pos.z, 1); //10
-		}.bind(this);
-
-		this.car.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
-		console.log('11111111111');
-		//console.log(controlsCar.moveForward);
-		//controlsCar.moveForward = true;
 		Tundra.frame.onUpdate(this, this.onFrameUpdate);
 		Tundra.frame.onPreRender(this, this.onPreRender);
 		
@@ -310,7 +299,60 @@ var OulubusvizHandler = IApplication.$extend(
 
         // Return the parsed data.
         return( arrData );
-    }
+    },
+	
+	check_new_buses: function()
+	{
+		$.ajax({
+			type: "GET",
+			url: "http://localhost/oulunbussyviz/index_demo.php",
+			cache: false,
+			dataType: "xml",
+			success: function(xml) {
+				console.log('22222222222222');
+				busses_data = xmlToJson(xml);
+				console.log(busses_data);
+				if (busses_data.busses && busses_data.busses.bus_detail)
+				{
+					
+					// create new bus
+					new_bus = new THREE.Car();
+					bus_id = make_car_id();
+					new_bus.id = bus_id;
+					new_bus.modelScale = 200; // size of the car
+					new_bus.backWheelOffset = 0.02;
+					new_bus.MAX_SPEED = 0.9; //25
+					new_bus.MAX_REVERSE_SPEED = -0.5; //-15
+					new_bus.FRONT_ACCELERATION = 0.4; //12
+					new_bus.BACK_ACCELERATION = 0.5; //15
+					new_bus.WHEEL_ANGULAR_ACCELERATION = 1; //1.5
+					new_bus.FRONT_DECCELERATION = 0.5 //10
+					new_bus.WHEEL_ANGULAR_DECCELERATION = 1; //1.0
+					new_bus.STEERING_RADIUS_RATIO = 0.23; //0.23
+					for (j=0; j<busses_data.busses.bus_detail.shape.length; j++)
+					{
+						new_bus.trip_details.push({ lat: parseFloat(busses_data.busses.bus_detail.shape[j]['shape_pt_lat']['#text']), lon: parseFloat(busses_data.busses.bus_detail.shape[j]['shape_pt_lon']['#text'])});
+					}
+					console.log(new_bus.trip_details);
+					// add new bus to map
+					
+					new_bus.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
+					
+					new_bus.callback = function(object) {
+						var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(object.trip_details[0].lat, object.trip_details[0].lon); //first position of the car
+						
+						console.log(object.trip_details[0].lat + ',' + object.trip_details[0].lon);
+						addCar(object, pos.x, 0, pos.z, 1); //10
+					}.bind(this);
+					console.log('111');
+					console.log(running_busses);
+					running_busses[bus_id] = new_bus;
+					console.log('2222');
+					
+				}
+			}
+		});
+	},
 });
 
 // Start the application by instantiating it
