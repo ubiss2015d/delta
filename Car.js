@@ -5,6 +5,8 @@
 THREE.Car = function()
 {
 	this.id = '';
+	this.start_running_time = 0;
+	this.stops = [];
 	var scope = this;
 	this.trip_details = [];
 	
@@ -417,6 +419,18 @@ THREE.Car = function()
 	function follow_trip_detail()
 	{
 		//TODO
+	}
+	
+	function start_moving()
+	{
+		//TODO
+	}
+	
+	function update_position()
+	{
+		//TODO
+		// update the position of the car based on current time
+		
 	}
 
 };

@@ -5,10 +5,9 @@
 // begin samuli
 
 // Tampere coordinates
-var my_lat = 61.4981145;
-var my_lon = 23.761476;
+var my_lat = 65.002916;
+var my_lon = 25.465702;
 var asd = my_lat;
-
 var my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
 
 
@@ -22,7 +21,6 @@ var highlighted_bus_stops;
 // end san
 
 function make_car_id()
-
 {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -127,10 +125,33 @@ function check_new_buses()
 					new_bus.WHEEL_ANGULAR_DECCELERATION = 1; //1.0
 					new_bus.STEERING_RADIUS_RATIO = 0.23; //0.23
 					console.log(bus_details[i]);
-					for (j=0; j<bus_details[i].shape.length; j++)
+					running_time = parseFloat(bus_details[i].shape[0]['departure_number_time']['#text']);
+					distance = 0;
+					new_bus.trip_details.push({ lat: parseFloat(bus_details[i].shape[0]['shape_pt_lat']['#text']), 
+												lon: parseFloat(bus_details[i].shape[0]['shape_pt_lon']['#text']),
+												speed: 0});
+					shapes_to_bus_stop = [];
+					for (j=1; j<bus_details[i].shape.length; j++)
 					{
-						new_bus.trip_details.push({ lat: parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text']), lon: parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text'])});
+						distance += Math.sqrt(Math.pow(parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text'])-parseFloat(bus_details[i].shape[j-1]['shape_pt_lat']['#text']), 2) + Math.pow(parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text'])-parseFloat(bus_details[i].shape[j-1]['shape_pt_lon']['#text']), 2));
+						if (bus_details[i].shape[j]['stop_id'])
+						{
+							speed = distance/(parseFloat(bus_details[i].shape[j]['departure_number_time']['#text']) - running_time);
+							for (k=0; k<shapes_to_bus_stop.length; k++)
+							{
+								shapes_to_bus_stop[k].speed = speed;
+								new_bus.trip_details.push(shapes_to_bus_stop[k]);
+							}
+							shapes_to_bus_stop = [];
+							distance = 0;
+							running_time = parseFloat(bus_details[i].shape[j]['departure_number_time']['#text']);
+						}
+						
+						shapes_to_bus_stop.push({ lat: parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text']), 
+													lon: parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text']),
+													speed: 0});
 					}
+					console.log(new_bus.trip_details);
 					// add new bus to map
 					
 					new_bus.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
@@ -141,10 +162,8 @@ function check_new_buses()
 						console.log(object.trip_details[0].lat + ',' + object.trip_details[0].lon);
 						addCar(object, pos.x, 0, pos.z, 1); //10
 					};
-					console.log('111');
-					console.log(running_busses);
+					
 					running_busses[bus_id] = new_bus;
-					console.log('2222');
 				}
 				
 				
