@@ -1,5 +1,5 @@
 // begin thang
-
+var updated_time = 0;
 // end thang
 
 // begin samuli
@@ -131,7 +131,8 @@ function check_new_buses()
 					shapes_to_bus_stop = [];
 					for (j=1; j<bus_details[i].shape.length; j++)
 					{
-						distance += Math.sqrt(Math.pow(parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text'])-parseFloat(bus_details[i].shape[j-1]['shape_pt_lat']['#text']), 2) + Math.pow(parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text'])-parseFloat(bus_details[i].shape[j-1]['shape_pt_lon']['#text']), 2));
+						small_distance = Math.sqrt(Math.pow(parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text'])-parseFloat(bus_details[i].shape[j-1]['shape_pt_lat']['#text']), 2) + Math.pow(parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text'])-parseFloat(bus_details[i].shape[j-1]['shape_pt_lon']['#text']), 2));
+						distance += small_distance;
 						if (bus_details[i].shape[j]['stop_id'])
 						{
 							speed = distance/(parseFloat(bus_details[i].shape[j]['departure_number_time']['#text']) - running_time);
@@ -145,14 +146,16 @@ function check_new_buses()
 							running_time = parseFloat(bus_details[i].shape[j]['departure_number_time']['#text']);
 						}
 						
-						shapes_to_bus_stop.push({ lat: parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text']), 
+						shapes_to_bus_stop.push({ 	lat: parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text']), 
 													lon: parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text']),
-													speed: 0});
+													speed: 0,
+													distance: small_distance,
+													time_to_go: 0});
 					}
 					drawHighlightedRoute(new_bus.trip_details);
 					// add new bus to map
 					
-					new_bus.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
+					new_bus.loadPartsJSON("../applications/delta.git/GreenCar.js", "../applications/delta.git/GreenCar.js");
 					
 					new_bus.callback = function(object) {
 						var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(object.trip_details[0].lat, object.trip_details[0].lon); //first position of the car
@@ -176,7 +179,9 @@ function check_new_buses()
 			}
 		}
 	});
-	setTimeout(check_new_buses, 5000);
+	updated_time++;
+	if (updated_time <= 3)
+		setTimeout(check_new_buses, 5000);
 }
 
 function drawHighlightedRoute(coordinates)
