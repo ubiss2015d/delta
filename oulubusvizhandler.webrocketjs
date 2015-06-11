@@ -1,3 +1,5 @@
+var highlighted_route;
+
 var OulubusvizHandler = IApplication.$extend(
 {
 	
@@ -210,6 +212,36 @@ var OulubusvizHandler = IApplication.$extend(
     onScriptDestroyed : function()
     {
         Tundra.plugins.meshmoonGeo.stop();
+    },
+
+    drawHighlightedRoute : function (coordinates)
+    {
+        // TODO
+        // get actual coordinates...
+        if ( null == coordinates) {
+            coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+        }
+
+        // Remove the previous route
+        Tundra.renderer.scene.remove( this.highlighted_route );
+        
+        var line_material = new THREE.LineBasicMaterial({
+            color: 0x00ff00,
+            linewidth: 5
+            });
+
+        var line_geometry = new THREE.Geometry();
+        for (var i = 0; i < coordinates.length; i++) {
+            var lat = parseFloat(coordinates[i][0]);
+            var lon = parseFloat(coordinates[i][1]);
+            var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
+            pos.y = 25;
+            line_geometry.vertices.push(pos);
+        }
+
+        var line = new THREE.Line( line_geometry, line_material );
+        this.highlighted_route = line;
+        Tundra.renderer.scene.add( this.highlighted_route );
     },
 
     // ref: http://stackoverflow.com/a/1293163/2343
