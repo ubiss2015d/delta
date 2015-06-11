@@ -1,5 +1,6 @@
-var my_lat = 65.0104156;
-var my_lon = 25.4775413;
+// Tampere coordinates
+var my_lat = 61.4981145;
+var my_lon = 23.761476;
 var asd = my_lat;
 
 var my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
@@ -67,9 +68,8 @@ var OulubusvizHandler = IApplication.$extend(
         Tundra.frame.onPreRender(this, this.onPreRender);
         
         
-        
-        
-        
+        /*
+        // TEST BILLBOARD
        var bb_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
         
         
@@ -82,65 +82,70 @@ var OulubusvizHandler = IApplication.$extend(
         my_entity.billboard.width = 300.0;
     
         Tundra.frame.onPreRender(this, this.onPreRender);
-        
-        
+        // !TEST BILLBOARD
+        */
         
         
         
         // Bus locations
-        var transfer = Tundra.asset.requestAsset("https://dl.dropboxusercontent.com/u/3127934/oulubusviz/tre_example.json", "Text");
+        var transfer = Tundra.asset.requestAsset("http://data.itsfactory.fi/siriaccess/vm/json", ".json");
         
         //console.log(transfer);
         if (transfer != null) {
-            transfer.onCompleted(this, this.onAssetTransferCompleted);
+            transfer.onCompleted(this, this.onBusAssetTransferCompleted);
         } 
         else 
         {
             console.log("transfer == null");
         }
+        
+        
+        
     },
     
-    onAssetTransferCompleted: function(asset)
+    onBusAssetTransferCompleted: function(asset)
     {
-        var items = asset.data.body;
+        var items = asset.data["Siri"]["ServiceDelivery"]["VehicleMonitoringDelivery"][0]["VehicleActivity"];
+        //console.log(items);
+        //var jsMap = JSON.parse(items);
         
-        var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
+        //var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
+        
         
         if (items)
         {
             //var items = obj;
-            for (var i = 0; i < items.length; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var oneItem = items[i];
-                //if (typeof oneItem["georss:point"] != "object")
-                //    continue;
- 
-                var coord = oneItem["monitoredVehicleJourney"]["vehicleLocation"];
-                //console.log(coord);
+  
+                var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
+                console.log(bus_coord);
                 
-                var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseInt(coord.latitude), parseInt(coord.longitude));
-                //console.log(pos);
+                var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseInt(bus_coord["Latitude"]), parseInt(bus_coord["Longitude"]));
+                console.log(bus_pos);
  
                 var bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
  
                 bus_entity.name = "ent_"+i;
-        
-                bus_entity.placeable.setPosition(new THREE.Vector3(pos.x, 150.0, pos.z));
-                bus_entity.billboard.materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
-                bus_entity.billboard.height = 20.0;
-                bus_entity.billboard.width = 30.0;
+                bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 150.0, bus_pos.z));
+                bus_entity.billboard.materialRef = "https://dl.dropboxusercontent.com/u/3127934/oulubusviz/bus.png";
+                bus_entity.billboard.height = 150.0;
+                bus_entity.billboard.width = 150.0;
                 
                 console.log(bus_entity);
  
             }
         }
+        
     },
     
     
 	
 	onDependenciesLoaded : function()
 	{
-		//billboard
+		/*
+        //billboard
 		this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
         // ent.component("Billboard"
         this.ent.component("Name").value = "test_billboard";
@@ -151,6 +156,7 @@ var OulubusvizHandler = IApplication.$extend(
         this.ent.component("Placeable").setPosition(poz.x, 150.0, poz.z);
         this.ent.component("Billboard").materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
 		this.asd = 65.013439;
+        */
 		
 		// Get the camera XML file and assign callback function 
 		this.car = new THREE.Car();
