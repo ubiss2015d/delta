@@ -1,3 +1,9 @@
+var my_lat = 65.0104156;
+var my_lon = 25.4775413;
+var asd = my_lat;
+
+var my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+
 var OulubusvizHandler = IApplication.$extend(
 {
 	
@@ -9,59 +15,6 @@ var OulubusvizHandler = IApplication.$extend(
 
 		object.root.castShadow = true;
 		object.root.receiveShadow = true;
-	},
-	parse_coord: function(str)
-	{
-		var coordArray = str.split(' ');
-		var lat = parseFloat(coordArray[1]);
-		var lon = parseFloat(coordArray[0]);
-		
-		var coord = {};
-		if (!isNaN(lat))
-			coord.lat = lat;
-		if (!isNaN(lon))
-			coord.lon = lon;
-		
-		return coord;
-	},
-	
-	xmlToJson : function(xml) 
-	{
-	
-		// Create the return object
-		var obj = {};
-
-		if (xml.nodeType == 1) { // element
-			// do attributes
-			if (xml.attributes.length > 0) {
-			obj["@attributes"] = {};
-				for (var j = 0; j < xml.attributes.length; j++) {
-					var attribute = xml.attributes.item(j);
-					obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
-				}
-			}
-		} else if (xml.nodeType == 3) { // text
-			obj = xml.nodeValue;
-		}
-
-		// do children
-		if (xml.hasChildNodes()) {
-			for(var i = 0; i < xml.childNodes.length; i++) {
-				var item = xml.childNodes.item(i);
-				var nodeName = item.nodeName;
-				if (typeof(obj[nodeName]) == "undefined") {
-					obj[nodeName] = this.xmlToJson(item);
-				} else {
-					if (typeof(obj[nodeName].push) == "undefined") {
-						var old = obj[nodeName];
-						obj[nodeName] = [];
-						obj[nodeName].push(old);
-					}
-					obj[nodeName].push(this.xmlToJson(item));
-				}
-			}
-		}
-		return obj;
 	},
 	
 	
@@ -97,8 +50,8 @@ var OulubusvizHandler = IApplication.$extend(
            You can change this coordinate to be anywhere in the world
            and Meshmoon GEO will do its best to visualize the location. */
         Tundra.plugins.meshmoonGeo.start({
-            lon : 25.466228,
-            lat : 65.013439
+            lon : my_lon,
+            lat : my_lat
         });
 		
 		IApplication.loadDependencies(this,
@@ -113,10 +66,77 @@ var OulubusvizHandler = IApplication.$extend(
         // Connect the prerender function
         Tundra.frame.onPreRender(this, this.onPreRender);
         
+        
+        
+        
+        
+       var bb_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
+        
+        
+        my_entity.name = "Test_billboard";
+        
+        my_entity.placeable.setPosition(new THREE.Vector3(bb_pos.x, 300.0, bb_pos.z));
+        //my_entity.placeable.setScale(new THREE.Vector3(1, 1, 1));
+        my_entity.billboard.materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
+        my_entity.billboard.height = 200.0;
+        my_entity.billboard.width = 300.0;
+    
+        Tundra.frame.onPreRender(this, this.onPreRender);
+        
+        
+        
+        
+        
         // Bus locations
-        var transfer = Tundra.asset.requestAsset("http://www.oulunliikenne.fi/rss/weather_camera/camera.xml");
-        transfer.onCompleted(this, this.onAssetTransferCompleted);
+        var transfer = Tundra.asset.requestAsset("https://dl.dropboxusercontent.com/u/3127934/oulubusviz/tre_example.json", "Text");
+        
+        //console.log(transfer);
+        if (transfer != null) {
+            transfer.onCompleted(this, this.onAssetTransferCompleted);
+        } 
+        else 
+        {
+            console.log("transfer == null");
+        }
     },
+    
+    onAssetTransferCompleted: function(asset)
+    {
+        var items = asset.data.body;
+        
+        var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
+        
+        if (items)
+        {
+            //var items = obj;
+            for (var i = 0; i < items.length; i++)
+            {
+                var oneItem = items[i];
+                //if (typeof oneItem["georss:point"] != "object")
+                //    continue;
+ 
+                var coord = oneItem["monitoredVehicleJourney"]["vehicleLocation"];
+                //console.log(coord);
+                
+                var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseInt(coord.latitude), parseInt(coord.longitude));
+                //console.log(pos);
+ 
+                var bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
+ 
+                bus_entity.name = "ent_"+i;
+        
+                bus_entity.placeable.setPosition(new THREE.Vector3(pos.x, 150.0, pos.z));
+                bus_entity.billboard.materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
+                bus_entity.billboard.height = 20.0;
+                bus_entity.billboard.width = 30.0;
+                
+                console.log(bus_entity);
+ 
+            }
+        }
+    },
+    
+    
 	
 	onDependenciesLoaded : function()
 	{
