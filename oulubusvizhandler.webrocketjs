@@ -8,7 +8,7 @@ var updated_time = 0;
 var my_lat = 65.002916;
 var my_lon = 25.465702;
 var asd = my_lat;
-var my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+var my_entity;
 
 
 // end samuli
@@ -326,15 +326,16 @@ var OulubusvizHandler = IApplication.$extend(
 	onDependenciesLoaded : function()
 	{
 		//billboard
-		this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+		//this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+		this.my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
         // ent.component("Billboard"
-        this.ent.component("Name").value = "test_billboard";
+        this.my_entity.component("Name").value = "test_billboard";
         //ent.component("Placeable").transform.pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
         var poz = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
-        this.ent.component("Billboard").height = 150.0;
-        this.ent.component("Billboard").width = 150.0;
-        this.ent.component("Placeable").setPosition(poz.x, 150.0, poz.z);
-        this.ent.component("Billboard").materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
+        this.my_entity.component("Billboard").height = 150.0;
+        this.my_entity.component("Billboard").width = 200.0;
+        this.my_entity.component("Placeable").setPosition(poz.x, 150.0, poz.z);
+        this.my_entity.component("Billboard").materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
 		this.asd = 65.013439;
 		
 		// Get the camera XML file and assign callback function 
@@ -354,7 +355,8 @@ var OulubusvizHandler = IApplication.$extend(
 
     onPreRender : function()
     {
-    
+        var pos = this.my_entity.component("Placeable").transform.pos;
+        this.my_entity.component("Placeable").setPosition(pos.x + 0.1, pos.y, pos.z);
     },
 
     onActiveCameraChanged : function(activeCameraComponent, prevCameraComponent)
