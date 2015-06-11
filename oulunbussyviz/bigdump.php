@@ -41,7 +41,7 @@ error_reporting(E_ALL);
 $db_server   = 'localhost';
 $db_name     = 'oulunbussyviz';
 $db_username = 'root';
-$db_password = 'ubi_traffic.sql'; 
+$db_password = ''; 
 
 // Connection charset should be the same as the dump file charset (utf8, latin1, cp1251, koi8r etc.)
 // See http://dev.mysql.com/doc/refman/5.0/en/charset-charsets.html for the full list
@@ -51,7 +51,7 @@ $db_connection_charset = 'utf8';
 
 // OPTIONAL SETTINGS 
 
-$filename           = '';     // Specify the dump filename to suppress the file selection dialog
+$filename           = 'ubi_traffic.sql';     // Specify the dump filename to suppress the file selection dialog
 $ajax               = true;   // AJAX mode: import will be done without refreshing the website
 $linespersession    = 3000;   // Lines to be executed per one import session
 $delaypersession    = 0;      // You can specify a sleep time in milliseconds after each session
