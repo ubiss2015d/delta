@@ -84,7 +84,6 @@ function addCar(object, x, y, z, s) {
 var highlighted_route;
 function check_new_buses()
 {
-	console.log('check_new_buses');
 	link = "12".charAt(Math.floor(Math.random() * 2));
 	link = "http://localhost/oulunbussyviz/index_demo_" + link + ".php";
 	//link = "http://localhost/oulunbussyviz/index_demo_1.php";
@@ -124,7 +123,6 @@ function check_new_buses()
 					new_bus.FRONT_DECCELERATION = 0.5 //10
 					new_bus.WHEEL_ANGULAR_DECCELERATION = 1; //1.0
 					new_bus.STEERING_RADIUS_RATIO = 0.23; //0.23
-					console.log(bus_details[i]);
 					running_time = parseFloat(bus_details[i].shape[0]['departure_number_time']['#text']);
 					distance = 0;
 					new_bus.trip_details.push({ lat: parseFloat(bus_details[i].shape[0]['shape_pt_lat']['#text']), 
@@ -158,9 +156,17 @@ function check_new_buses()
 					
 					new_bus.callback = function(object) {
 						var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(object.trip_details[0].lat, object.trip_details[0].lon); //first position of the car
+						var new_post = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(64.992033, 25.559772);
 						
-						console.log(object.trip_details[0].lat + ',' + object.trip_details[0].lon);
 						addCar(object, pos.x, 0, pos.z, 1); //10
+						var tweenMove = new TWEEN.Tween({ x: 0, z: 0 })
+						.to({x: 10, z: 10}, 4000)
+						.easing(TWEEN.Easing.Elastic.InOut)
+						.onUpdate(function()
+						{
+							object.root.translateX(this.x);
+							object.root.translateZ(this.z);
+						}).start();
 					};
 					
 					running_busses[bus_id] = new_bus;
@@ -178,7 +184,7 @@ function drawHighlightedRoute(coordinates)
 	// TODO
 	// get actual coordinates...
 	if ( null == coordinates) {
-		coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+		coordinates = [ {lat: 65.015709, lon: 25.470789}, {lat: 65.016709,lon: 25.470089}, {lat: 65.017709,lon: 25.471789}, {lat: 65.016709,lon: 25.472789} ];
 	}
 
 	// Remove the previous route
