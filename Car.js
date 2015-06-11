@@ -9,7 +9,7 @@ THREE.Car = function()
 	this.stops = [];
 	var scope = this;
 	this.trip_details = [];
-	
+	this.tween_moves = [];
 
 	this.lerp = function(a, b, t) {
 		return a + (b - a) * t;
