@@ -4,6 +4,7 @@
 
 THREE.Car = function()
 {
+	this.id = '';
 	var scope = this;
 	this.trip_details = [];
 	

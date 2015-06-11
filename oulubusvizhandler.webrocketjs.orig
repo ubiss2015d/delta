@@ -1,0 +1,546 @@
+<<<<<<< HEAD
+// Tampere coordinates
+var my_lat = 61.4981145;
+var my_lon = 23.761476;
+var asd = my_lat;
+
+var my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+
+var OulubusvizHandler = IApplication.$extend(
+=======
+// begin thang
+
+// end thang
+
+// begin samuli
+
+// end samuli
+
+// begin san
+// The bus stops that are displayed at the moment
+var highlighted_bus_stops;
+
+
+// end san
+
+function make_car_id()
+
+>>>>>>> origin/master
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 5; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+<<<<<<< HEAD
+		object.root.castShadow = true;
+		object.root.receiveShadow = true;
+	},
+=======
+    return text;
+}
+function xmlToJson(xml) 
+{
+
+	// Create the return object
+	var obj = {};
+
+	if (xml.nodeType == 1) { // element
+		// do attributes
+		if (xml.attributes.length > 0) {
+		obj["@attributes"] = {};
+			for (var j = 0; j < xml.attributes.length; j++) {
+				var attribute = xml.attributes.item(j);
+				obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+			}
+		}
+	} else if (xml.nodeType == 3) { // text
+		obj = xml.nodeValue;
+	}
+
+	// do children
+	if (xml.hasChildNodes()) {
+		for(var i = 0; i < xml.childNodes.length; i++) {
+			var item = xml.childNodes.item(i);
+			var nodeName = item.nodeName;
+			if (typeof(obj[nodeName]) == "undefined") {
+				obj[nodeName] = xmlToJson(item);
+			} else {
+				if (typeof(obj[nodeName].push) == "undefined") {
+					var old = obj[nodeName];
+					obj[nodeName] = [];
+					obj[nodeName].push(old);
+				}
+				obj[nodeName].push(xmlToJson(item));
+			}
+		}
+	}
+	return obj;
+}
+
+var running_busses = [];
+
+function addCar(object, x, y, z, s) {
+	console.log("Add car");
+
+	object.root.position.set(x, y, z);
+	Tundra.renderer.scene.add(object.root); // add object to the Meshmoon scene
+
+	object.root.castShadow = true;
+	object.root.receiveShadow = true;
+}
+
+var highlighted_route;
+function check_new_buses()
+{
+	console.log('check_new_buses');
+	link = "12".charAt(Math.floor(Math.random() * 2));
+	link = "http://localhost/oulunbussyviz/index_demo_" + link + ".php";
+	//link = "http://localhost/oulunbussyviz/index_demo_1.php";
+	$.ajax({
+		type: "GET",
+		url: link,
+		cache: false,
+		dataType: "xml",
+		success: function(xml) {
+			busses_data = xmlToJson(xml);
+			bus_details = [];
+			
+			
+			if (busses_data.busses && busses_data.busses.bus_detail)
+			{
+				if (typeof busses_data.busses.bus_detail.shape !== 'undefined')
+				{
+					bus_details.push(busses_data.busses.bus_detail);
+				}
+				else
+				{
+					bus_details = busses_data.busses.bus_detail;
+				}
+				for (i=0; i<bus_details.length; i++)
+				{
+					// create new bus
+					new_bus = new THREE.Car();
+					bus_id = make_car_id();
+					new_bus.id = bus_id;
+					new_bus.modelScale = 200; // size of the car
+					new_bus.backWheelOffset = 0.02;
+					new_bus.MAX_SPEED = 0.9; //25
+					new_bus.MAX_REVERSE_SPEED = -0.5; //-15
+					new_bus.FRONT_ACCELERATION = 0.4; //12
+					new_bus.BACK_ACCELERATION = 0.5; //15
+					new_bus.WHEEL_ANGULAR_ACCELERATION = 1; //1.5
+					new_bus.FRONT_DECCELERATION = 0.5 //10
+					new_bus.WHEEL_ANGULAR_DECCELERATION = 1; //1.0
+					new_bus.STEERING_RADIUS_RATIO = 0.23; //0.23
+					console.log(bus_details[i]);
+					for (j=0; j<bus_details[i].shape.length; j++)
+					{
+						new_bus.trip_details.push({ lat: parseFloat(bus_details[i].shape[j]['shape_pt_lat']['#text']), lon: parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text'])});
+					}
+					// add new bus to map
+					
+					new_bus.loadPartsJSON("deps/GreenCar.js", "deps/GreenCar.js");
+					
+					new_bus.callback = function(object) {
+						var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(object.trip_details[0].lat, object.trip_details[0].lon); //first position of the car
+						
+						console.log(object.trip_details[0].lat + ',' + object.trip_details[0].lon);
+						addCar(object, pos.x, 0, pos.z, 1); //10
+					};
+					console.log('111');
+					console.log(running_busses);
+					running_busses[bus_id] = new_bus;
+					console.log('2222');
+				}
+				
+				
+			}
+		}
+	});
+	setTimeout(check_new_buses, 5000);
+}
+
+var OulubusvizHandler = IApplication.$extend(
+{
+	
+	
+	parse_coord: function(str)
+	{
+		var coordArray = str.split(' ');
+		var lat = parseFloat(coordArray[1]);
+		var lon = parseFloat(coordArray[0]);
+		
+		var coord = {};
+		if (!isNaN(lat))
+			coord.lat = lat;
+		if (!isNaN(lon))
+			coord.lon = lon;
+		
+		return coord;
+	},
+	
+	
+>>>>>>> origin/master
+	
+	
+    __init__ : function()
+    {
+        this.$super("Oulubusviz");
+
+        this.timing = new AsyncHelper(this.name, this);
+        this.state =
+        {
+            camera : {}
+        };
+		
+
+        // Monitor active camera change
+        var activeCamera = Tundra.renderer.activeCameraEntity();
+        if (activeCamera != null && activeCamera.camera != null)
+            this.onActiveCameraChanged(activeCamera.camera);
+
+        this.subscribeEvent(Tundra.renderer.onActiveCameraChanged(this, this.onActiveCameraChanged));
+
+        // Run RTS camera application
+        this.rts = {};
+        this.rts.ent = Tundra.client.runApplication("RTS", "meshmoon-applications://meshmoon/rts-camera/rts-camera.webrocketjs");
+        this.rts.ent.script.onScriptStarted(function(entity, component, scriptAsset, app) {
+            this.rts.app = app;
+        }.bind(this));
+
+        // You can turn on debugging to see more internals
+        //Tundra.plugins.meshmoonGeo.config.debug = true; // and/or
+        //Tundra.plugins.meshmoonGeo.config.debugVolume = true;
+        
+        /* Run Meshmoon GEO at Oulu city center
+           You can change this coordinate to be anywhere in the world
+           and Meshmoon GEO will do its best to visualize the location. */
+        Tundra.plugins.meshmoonGeo.start({
+            lon : my_lon,
+            lat : my_lat
+        });
+		
+		IApplication.loadDependencies(this,
+			"Car.js"
+		).done(function()
+		{
+			this.onDependenciesLoaded();
+		}.bind(this));
+		
+		
+		
+		// begin thang
+		check_new_buses();
+		// end thang
+
+		// begin samuli
+
+		// end samuli
+
+		// begin san
+        this.drawHighlightedBusStops(null);
+		// end san
+
+        // Setup default environment
+        Tundra.plugins.meshmoonGeo.setupEnvironment();
+        // Connect the prerender function
+        Tundra.frame.onPreRender(this, this.onPreRender);
+        
+        
+        /*
+        // TEST BILLBOARD
+       var bb_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
+        
+        
+        my_entity.name = "Test_billboard";
+        
+        my_entity.placeable.setPosition(new THREE.Vector3(bb_pos.x, 300.0, bb_pos.z));
+        //my_entity.placeable.setScale(new THREE.Vector3(1, 1, 1));
+        my_entity.billboard.materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
+        my_entity.billboard.height = 200.0;
+        my_entity.billboard.width = 300.0;
+    
+        Tundra.frame.onPreRender(this, this.onPreRender);
+        // !TEST BILLBOARD
+        */
+        
+        
+        
+        // Bus locations
+        var transfer = Tundra.asset.requestAsset("http://data.itsfactory.fi/siriaccess/vm/json", ".json");
+        
+        //console.log(transfer);
+        if (transfer != null) {
+            transfer.onCompleted(this, this.onBusAssetTransferCompleted);
+        } 
+        else 
+        {
+            console.log("transfer == null");
+        }
+        
+        
+        
+    },
+    
+    onBusAssetTransferCompleted: function(asset)
+    {
+        var items = asset.data["Siri"]["ServiceDelivery"]["VehicleMonitoringDelivery"][0]["VehicleActivity"];
+        //console.log(items);
+        //var jsMap = JSON.parse(items);
+        
+        //var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(my_lat, my_lon);
+        
+        
+        if (items)
+        {
+            //var items = obj;
+            for (var i = 0; i < 5; i++)
+            {
+                var oneItem = items[i];
+  
+                var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
+                console.log(bus_coord);
+                
+                var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseInt(bus_coord["Latitude"]), parseInt(bus_coord["Longitude"]));
+                console.log(bus_pos);
+ 
+                var bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
+ 
+                bus_entity.name = "ent_"+i;
+                bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 150.0, bus_pos.z));
+                bus_entity.billboard.materialRef = "https://dl.dropboxusercontent.com/u/3127934/oulubusviz/bus.png";
+                bus_entity.billboard.height = 150.0;
+                bus_entity.billboard.width = 150.0;
+                
+                console.log(bus_entity);
+ 
+            }
+        }
+        
+    },
+    
+    
+	
+	onDependenciesLoaded : function()
+	{
+		/*
+        //billboard
+		this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+        // ent.component("Billboard"
+        this.ent.component("Name").value = "test_billboard";
+        //ent.component("Placeable").transform.pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
+        var poz = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
+        this.ent.component("Billboard").height = 150.0;
+        this.ent.component("Billboard").width = 150.0;
+        this.ent.component("Placeable").setPosition(poz.x, 150.0, poz.z);
+        this.ent.component("Billboard").materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
+		this.asd = 65.013439;
+        */
+		
+		// Get the camera XML file and assign callback function 
+
+		//
+
+		Tundra.frame.onUpdate(this, this.onFrameUpdate);
+		Tundra.frame.onPreRender(this, this.onPreRender);
+		
+		this.subscribeEvent(Tundra.input.onMousePress(this, this.onMousePress));
+		
+        // Setup default environment
+        Tundra.plugins.meshmoonGeo.setupEnvironment();
+		
+		
+    },
+
+    onPreRender : function()
+    {
+    
+    },
+
+    onActiveCameraChanged : function(activeCameraComponent, prevCameraComponent)
+    {
+        var cameraName = (activeCameraComponent.parentEntity ? activeCameraComponent.parentEntity.name : "");
+        if (cameraName === "" || !cameraName)
+            return;
+
+        // Adjust far plane to handle big scene for Meshmoon GEO functionality
+        this.camera = activeCameraComponent.parentEntity;
+        this.camera.camera.farPlane = 1000000;
+
+        this.log.debug("Active camera changed", this.camera.name);
+
+        // If RTS camera execute configuration
+        if (this.camera.name === "MeshmoonRtsCamera" && this.state.camera.configured === undefined)
+        {
+            this.state.camera.configured = true;
+            this.timing.async("rts.config", function() {
+                this.camera.exec(EntityAction.Local, "SetRotation", { x : -40, y : 0, z : 0 });
+                this.camera.exec(EntityAction.Local, "SetDistance", 3000);
+                this.camera.exec(EntityAction.Local, "SetMinDistance", 200);
+                this.camera.exec(EntityAction.Local, "SetMaxDistance", this.camera.camera.farPlane * 0.4);
+            }, 100);
+        }
+    },
+
+    /** 
+        Script destroy/unload handler. Called automatically 
+        by the framework when the application is closed.
+    */
+    onScriptDestroyed : function()
+    {
+        Tundra.plugins.meshmoonGeo.stop();
+    },
+
+    drawHighlightedRoute : function (coordinates)
+    {
+        // TODO
+        // get actual coordinates...
+        if ( null == coordinates) {
+            coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+        }
+
+        // Remove the previous route
+        Tundra.renderer.scene.remove( this.highlighted_route );
+        
+        var line_material = new THREE.LineBasicMaterial({
+            color: 0x00ff00,
+            linewidth: 5
+            });
+
+        var line_geometry = new THREE.Geometry();
+        for (var i = 0; i < coordinates.length; i++) {
+            var lat = parseFloat(coordinates[i][0]);
+            var lon = parseFloat(coordinates[i][1]);
+            var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
+            pos.y = 25;
+            line_geometry.vertices.push(pos);
+        }
+
+        var line = new THREE.Line( line_geometry, line_material );
+        this.highlighted_route = line;
+        Tundra.renderer.scene.add( this.highlighted_route );
+    },
+	
+	// begin thang
+	
+	// end thang
+
+	// begin samuli
+
+	// end samuli
+
+	// begin san
+	    drawHighlightedBusStops : function (coordinates)
+    {
+        // TODO
+        // get actual coordinates...
+        if ( null == coordinates) {
+            coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+        }
+
+        // Remove the previous stops
+        if (null != this.highlighted_bus_stops)
+        {
+            for (var i = 0; i < this.highlighted_bus_stops.length; i++)
+            {
+                Tundra.renderer.scene.remove (this.highlighted_bus_stops[i]);
+            }
+            this.highlighted_bus_stops = null;
+        }
+        this.highlighted_bus_stops = [];
+
+        for (var k = 0; k < coordinates.length; k++)
+        {
+            this.highlighted_bus_stops[k] = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+            var lat = parseFloat(coordinates[k][0]);
+            var lon = parseFloat(coordinates[k][1]);
+            var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
+            this.highlighted_bus_stops[k].component("Billboard").height = 150.0;
+            this.highlighted_bus_stops[k].component("Billboard").width = 100.0;
+            this.highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 100.0, pos.z);
+            this.highlighted_bus_stops[k].component("Billboard").materialRef = "http://images.clipartpanda.com/google-map-icon-marker.png";
+        }
+    },
+
+	// end san
+
+    // ref: http://stackoverflow.com/a/1293163/2343
+    // This will parse a delimited string into an array of
+    // arrays. The default delimiter is the comma, but this
+    // can be overriden in the second argument.
+    CSVToArray : function( strData, strDelimiter ){
+        // Check to see if the delimiter is defined. If not,
+        // then default to comma.
+        strDelimiter = (strDelimiter || ",");
+
+        // Create a regular expression to parse the CSV values.
+        var objPattern = new RegExp(
+            (
+                // Delimiters.
+                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+                // Quoted fields.
+                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+                // Standard fields.
+                "([^\"\\" + strDelimiter + "\\r\\n]*))"
+            ),
+            "gi"
+            );
+
+        // Create an array to hold our data. Give the array
+        // a default empty first row.
+        var arrData = [[]];
+
+        // Create an array to hold our individual pattern
+        // matching groups.
+        var arrMatches = null;
+
+        // Keep looping over the regular expression matches
+        // until we can no longer find a match.
+        while (arrMatches = objPattern.exec( strData )){
+            // Get the delimiter that was found.
+            var strMatchedDelimiter = arrMatches[ 1 ];
+
+            // Check to see if the given delimiter has a length
+            // (is not the start of string) and if it matches
+            // field delimiter. If id does not, then we know
+            // that this delimiter is a row delimiter.
+            if (
+                strMatchedDelimiter.length &&
+                strMatchedDelimiter !== strDelimiter
+                ){
+                // Since we have reached a new row of data,
+                // add an empty row to our data array.
+                arrData.push( [] );
+            }
+
+            var strMatchedValue;
+            // Now that we have our delimiter out of the way,
+            // let's check to see which kind of value we
+            // captured (quoted or unquoted).
+            if (arrMatches[ 2 ]){
+                // We found a quoted value. When we capture
+                // this value, unescape any double quotes.
+                strMatchedValue = arrMatches[ 2 ].replace(
+                    new RegExp( "\"\"", "g" ),
+                    "\""
+                    );
+            } else {
+                // We found a non-quoted value.
+                strMatchedValue = arrMatches[ 3 ];
+            }
+
+            // Now that we have our value string, let's add
+            // it to the data array.
+            arrData[ arrData.length - 1 ].push( strMatchedValue );
+        }
+
+        // Return the parsed data.
+        return( arrData );
+    }
+});
+
+// Start the application by instantiating it
+var oulubusvizHandler = new OulubusvizHandler();
+
