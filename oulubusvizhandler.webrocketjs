@@ -112,6 +112,10 @@ var OulubusvizHandler = IApplication.$extend(
         Tundra.plugins.meshmoonGeo.setupEnvironment();
         // Connect the prerender function
         Tundra.frame.onPreRender(this, this.onPreRender);
+        
+        // Bus locations
+        var transfer = Tundra.asset.requestAsset("http://www.oulunliikenne.fi/rss/weather_camera/camera.xml");
+        transfer.onCompleted(this, this.onAssetTransferCompleted);
     },
 	
 	onDependenciesLoaded : function()
