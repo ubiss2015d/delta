@@ -139,6 +139,7 @@ function check_new_buses()
 							for (k=0; k<shapes_to_bus_stop.length; k++)
 							{
 								shapes_to_bus_stop[k].speed = speed;
+								shapes_to_bus_stop[k].time_to_go = (shapes_to_bus_stop[k].time_to_go/speed)*1000;
 								new_bus.trip_details.push(shapes_to_bus_stop[k]);
 							}
 							shapes_to_bus_stop = [];
@@ -150,9 +151,27 @@ function check_new_buses()
 													lon: parseFloat(bus_details[i].shape[j]['shape_pt_lon']['#text']),
 													speed: 0,
 													distance: small_distance,
-													time_to_go: 0});
+													time_to_go: 0,
+													tween : null});
+					}
+					for (j=1; j<new_bus.trip_details.length; j++)
+					{
+						old_position = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(new_bus.trip_details[j-1].lat, new_bus.trip_details[j-1].lon);
+						new_position = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(new_bus.trip_details[j].lat, new_bus.trip_details[j].lon);
+						tween = new TWEEN.Tween({ x: old_position.x, z: old_position.z })
+						.to({x: new_position.x, z: new_position.z}, new_bus.trip_details[j].time_to_go)
+						.easing(TWEEN.Easing.Elastic.InOut)
+						.onUpdate(function()
+						{
+							new_bus.root.translateX(this.x);
+							new_bus.root.translateZ(this.z);
+						});
+						new_bus.trip_details[j].tween = tween;
+						if (j>1)
+							new_bus.trip_details[j-1].tween.chain(new_bus.trip_details[j].tween);
 					}
 					drawHighlightedRoute(new_bus.trip_details);
+					
 					// add new bus to map
 					
 					new_bus.loadPartsJSON("../applications/delta.git/GreenCar.js", "../applications/delta.git/GreenCar.js");
@@ -162,14 +181,7 @@ function check_new_buses()
 						var new_post = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(64.992033, 25.559772);
 						
 						addCar(object, pos.x, 0, pos.z, 1); //10
-						var tweenMove = new TWEEN.Tween({ x: 0, z: 0 })
-						.to({x: 10, z: 10}, 4000)
-						.easing(TWEEN.Easing.Elastic.InOut)
-						.onUpdate(function()
-						{
-							object.root.translateX(this.x);
-							object.root.translateZ(this.z);
-						}).start();
+						object.trip_details[1].tween.start();
 					};
 					
 					running_busses[bus_id] = new_bus;
