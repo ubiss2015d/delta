@@ -5,8 +5,15 @@ var updated_time = 0;
 // begin samuli
 
 // Tampere coordinates
+var my_lat = 61.4981503;
+var my_lon = 23.7610254;
+
+
+// Oulu coordinates
+/*
 var my_lat = 65.002916;
 var my_lon = 25.465702;
+*/
 var asd = my_lat;
 var my_entity;
 
@@ -301,6 +308,7 @@ var OulubusvizHandler = IApplication.$extend(
 		// end thang
 
 		// begin samuli
+        // TODO : Add Oulu data
         var transfer = Tundra.asset.requestAsset("http://data.itsfactory.fi/siriaccess/vm/json", ".json");
         
         //console.log(transfer);
@@ -410,15 +418,15 @@ var OulubusvizHandler = IApplication.$extend(
         if (items)
         {
             //var items = obj;
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < items.length; i++)
             {
                 var oneItem = items[i];
   
                 var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
                 console.log(bus_coord);
                 
-                var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseInt(bus_coord["Latitude"]), parseInt(bus_coord["Longitude"]));
-                console.log(bus_pos);
+                var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseFloat(bus_coord["Latitude"]), parseFloat(bus_coord["Longitude"]));
+                //console.log(bus_pos);
  
                 var bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
  
