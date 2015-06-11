@@ -7,6 +7,9 @@
 // end samuli
 
 // begin san
+// The bus stops that are displayed at the moment
+var highlighted_bus_stops;
+
 
 // end san
 
@@ -220,7 +223,7 @@ var OulubusvizHandler = IApplication.$extend(
 		// end samuli
 
 		// begin san
-
+        this.drawHighlightedBusStops(null);
 		// end san
 
         // Setup default environment
@@ -336,6 +339,37 @@ var OulubusvizHandler = IApplication.$extend(
 	// end samuli
 
 	// begin san
+	    drawHighlightedBusStops : function (coordinates)
+    {
+        // TODO
+        // get actual coordinates...
+        if ( null == coordinates) {
+            coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+        }
+
+        // Remove the previous stops
+        if (null != this.highlighted_bus_stops)
+        {
+            for (var i = 0; i < this.highlighted_bus_stops.length; i++)
+            {
+                Tundra.renderer.scene.remove (this.highlighted_bus_stops[i]);
+            }
+            this.highlighted_bus_stops = null;
+        }
+        this.highlighted_bus_stops = [];
+
+        for (var k = 0; k < coordinates.length; k++)
+        {
+            this.highlighted_bus_stops[k] = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+            var lat = parseFloat(coordinates[k][0]);
+            var lon = parseFloat(coordinates[k][1]);
+            var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
+            this.highlighted_bus_stops[k].component("Billboard").height = 150.0;
+            this.highlighted_bus_stops[k].component("Billboard").width = 100.0;
+            this.highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 100.0, pos.z);
+            this.highlighted_bus_stops[k].component("Billboard").materialRef = "http://images.clipartpanda.com/google-map-icon-marker.png";
+        }
+    },
 
 	// end san
 
