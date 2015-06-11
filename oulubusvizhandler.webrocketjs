@@ -135,32 +135,6 @@ var OulubusvizHandler = IApplication.$extend(
 	
 	onDependenciesLoaded : function()
 	{
-        // Monitor active camera change
-        var activeCamera = Tundra.renderer.activeCameraEntity();
-        if (activeCamera != null && activeCamera.camera != null)
-            this.onActiveCameraChanged(activeCamera.camera);
-
-        this.subscribeEvent(Tundra.renderer.onActiveCameraChanged(this, this.onActiveCameraChanged));
-
-        // Run RTS camera application
-        this.rts = {};
-        this.rts.ent = Tundra.client.runApplication("RTS", "meshmoon-applications://meshmoon/rts-camera/rts-camera.webrocketjs");
-        this.rts.ent.script.onScriptStarted(function(entity, component, scriptAsset, app) {
-            this.rts.app = app;
-        }.bind(this));
-
-        // You can turn on debugging to see more internals
-        //Tundra.plugins.meshmoonGeo.config.debug = true; // and/or
-        //Tundra.plugins.meshmoonGeo.config.debugVolume = true;
-        
-        /* Run Meshmoon GEO at Oulu city center
-           You can change this coordinate to be anywhere in the world
-           and Meshmoon GEO will do its best to visualize the location. */
-        Tundra.plugins.meshmoonGeo.start({
-            lon : 25.466228,
-            lat : 65.013439
-        });
-		
 		//billboard
 		this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
         // ent.component("Billboard"
