@@ -242,7 +242,7 @@ function drawHighlightedBusStops (coordinates)
 		highlighted_bus_stops[k].component("Billboard").height = 150.0;
 		highlighted_bus_stops[k].component("Billboard").width = 100.0;
 		highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 0, pos.z);
-		highlighted_bus_stops[k].component("Billboard").materialRef = "https://files.slack.com/files-pri/T0645GZNK-F0692CJ5S/google-map-icon-marker.png";
+		highlighted_bus_stops[k].component("Billboard").materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F0692CJ5S-c7157c1114/google-map-icon-marker_360.png";
 	}
 	console.log('end bus stops');
 }
