@@ -335,6 +335,7 @@ var OulubusvizHandler = IApplication.$extend(
             this.onActiveCameraChanged(activeCamera.camera);
 
         this.subscribeEvent(Tundra.renderer.onActiveCameraChanged(this, this.onActiveCameraChanged));
+        this.subscribeEvent(Tundra.input.onMousePress(this, this.onMousePress));
 
         // Run RTS camera application
         this.rts = {};
@@ -545,6 +546,11 @@ var OulubusvizHandler = IApplication.$extend(
                         bus_entity.billboard.materialRef = "bus.png";
                         bus_entity.billboard.height = 150.0;
                         bus_entity.billboard.width = 150.0;
+                        bus_entity.billboard.myData = 
+                        {
+                            id : oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"],
+                            bus_line : oneItem["MonitoredVehicleJourney"]["LineRef"]["value"]
+                        };
                     }
                     
                     var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
@@ -563,10 +569,21 @@ var OulubusvizHandler = IApplication.$extend(
 
                     bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
                     bus_entity.billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
+                    
+                    bus_entities.push(bus_entity.billboard.sprite);
                 }
             }
         }
 	},
+    
+    onMousePress : function(event)
+    {
+        
+        var r = Tundra.renderer.raycast(undefined, undefined, undefined, bus_entities, true, false, false);
+        console.log("--------------------");
+        console.log(r.object.tundraBillboard.myData);
+        
+    },
 	// end samuli
 
 	// begin san
