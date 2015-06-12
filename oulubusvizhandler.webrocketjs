@@ -500,7 +500,7 @@ var OulubusvizHandler = IApplication.$extend(
                     var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseFloat(bus_coord["Latitude"]), parseFloat(bus_coord["Longitude"]));
      
                     bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
-                    bus_entities[i].billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
+                    bus_entity.billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
                 }
             }
         }
