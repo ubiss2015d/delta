@@ -10,6 +10,8 @@ THREE.Car = function()
 	var scope = this;
 	this.trip_details = [];
 	this.tween_moves = [];
+	this.last_update = 0;
+	this.moving_distance = 0;
 
 	this.lerp = function(a, b, t) {
 		return a + (b - a) * t;
@@ -426,11 +428,12 @@ THREE.Car = function()
 		//TODO
 	}
 	
-	function update_position()
+	function update_position(time_since_last_update)
 	{
 		//TODO
 		// update the position of the car based on current time
-		
+		this.trip_details[0].x
+		this.last_update = time_since_last_update;
 	}
 
 };
