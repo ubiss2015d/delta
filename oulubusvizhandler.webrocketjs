@@ -242,8 +242,8 @@ function drawHighlightedBusStops (coordinates)
 		var lon = parseFloat(coordinates[k]['stop_lon']['#text']);
 		//console.log('bus stop', lat, lon);
 		var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
-		highlighted_bus_stops[k].component("Billboard").height = 150.0;
-		highlighted_bus_stops[k].component("Billboard").width = 100.0;
+		highlighted_bus_stops[k].component("Billboard").height = 75.0;
+		highlighted_bus_stops[k].component("Billboard").width = 50.0;
 		highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 50, pos.z);
 		highlighted_bus_stops[k].component("Billboard").materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F0692CJ5S-c7157c1114/google-map-icon-marker_360.png";
 	}
@@ -445,7 +445,7 @@ var OulubusvizHandler = IApplication.$extend(
         {
             
         }
-        else if
+        else if(false) {}
     },
 
 	onDependenciesLoaded : function()
@@ -523,7 +523,7 @@ var OulubusvizHandler = IApplication.$extend(
             this.state.camera.configured = true;
             this.timing.async("rts.config", function() {
                 this.camera.exec(EntityAction.Local, "SetRotation", { x : -40, y : 0, z : 0 });
-                this.camera.exec(EntityAction.Local, "SetDistance", 8000);
+                this.camera.exec(EntityAction.Local, "SetDistance", 5000);
                 this.camera.exec(EntityAction.Local, "SetMinDistance", 200);
                 this.camera.exec(EntityAction.Local, "SetMaxDistance", this.camera.camera.farPlane * 0.4);
             }, 100);
@@ -571,8 +571,8 @@ var OulubusvizHandler = IApplication.$extend(
                         bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
                         bus_entity.name = oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"];
                         bus_entity.billboard.materialRef = "bus.png";
-                        bus_entity.billboard.height = 150.0;
-                        bus_entity.billboard.width = 150.0;
+                        bus_entity.billboard.height = 75.0;
+                        bus_entity.billboard.width = 75.0;
                         bus_entity.billboard.myData = 
                         {
                             id : oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"],
@@ -606,16 +606,21 @@ var OulubusvizHandler = IApplication.$extend(
     
     onMousePress : function(event)
     {
-        if (!e.isTarget("canvas", "body"))
+        if (!event.isTarget("canvas", "body"))
             return;
-        
+
         var r = Tundra.renderer.raycast(undefined, undefined, undefined, bus_entities, true, false, false);
         console.log("--------------------");
-        //console.log(r.object.tundraBillboard.myData);
-        my_entity = Tundra.scene.entityByName(r.object.tundraBillboard.myData.id);
+        
+        var my_entity = Tundra.scene.entityByName(r.object.tundraBillboard.myData.id);
+        console.log(r.object.tundraBillboard.myData);
+
         if (my_entity != null) {
             this.cameraEnt.placeable.parentRef = r.object.tundraBillboard.myData.id;
+            this.cameraEnt.placeable.setPosition(new THREE.Vector3(0.0, 30.0, 250.0));
+            //this.cameraEnt.placeable.lookAt(new THREE.Vector3(0,0,0));
             this.cameraEnt.camera.setActive();
+            //cam.placeable.setPosition(new THREE.Vector3(0, 900, 0))
         }
         console.log(my_entity);
         
