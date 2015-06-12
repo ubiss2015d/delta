@@ -392,21 +392,36 @@ var OulubusvizHandler = IApplication.$extend(
 
 	initUi : function()
 	{
-		var button = document.createElement("paper-button");
-		button.setAttribute("raised", true);
-		button.innerHTML = "Hide Bus Stops";
-		$(button).css({
+		var stopButton = document.createElement("paper-button");
+		stopButton.setAttribute("raised", true);
+		stopButton.innerHTML = "Hide Bus Stops";
+		$(stopButton).css({
 			position: "absolute",
 			background: "green",
 			top : "120px",
 			right : "0px"
 		});
-		Tundra.ui.add(button);
-		button.hidden = false;
-		button.addEventListener("click", this.busstopToggle);
+        
+        var cameraButton = document.createElement("paper-button");
+        cameraButton.setAttribute("raised", true);
+        cameraButton.innerHTML = "Bus Camera";
+        $(cameraButton).css({
+           position: "absolute",
+            background: "blue",
+            top : "180px",
+            right : "0px"
+        });
+        
+		Tundra.ui.add(stopButton);
+        Tundra.ui.add(cameraButton);
+        
+		stopButton.hidden = false;
+        cameraButton.hidden = false;
+		stopButton.addEventListener("click", this.busStopToggle);
+        cameraButton.addEventListener("click", this.cameraToggle);
 	},
 
-	busstopToggle : function()
+	busStopToggle : function()
 	{
 		if (show_bus_stops)
 		{
@@ -423,6 +438,15 @@ var OulubusvizHandler = IApplication.$extend(
 			highlighted_bus_stops[i].placeable.visible = show_bus_stops;
 		}
 	},
+    
+    cameraToggle : function()
+    {
+        if (my_entity != null)
+        {
+            
+        }
+        else if
+    },
 
 	onDependenciesLoaded : function()
 	{
@@ -582,6 +606,8 @@ var OulubusvizHandler = IApplication.$extend(
     
     onMousePress : function(event)
     {
+        if (!e.isTarget("canvas", "body"))
+            return;
         
         var r = Tundra.renderer.raycast(undefined, undefined, undefined, bus_entities, true, false, false);
         console.log("--------------------");
