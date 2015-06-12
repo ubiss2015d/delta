@@ -5,16 +5,16 @@ var updated_time = 0;
 // begin samuli
 
 // Tampere coordinates
-/*
+
 var my_lat = 61.4981503;
 var my_lon = 23.7610254;
-*/
+
 
 // Oulu coordinates
-
+/*
 var my_lat = 65.002916;
 var my_lon = 25.465702;
-
+*/
 var asd = my_lat;
 var my_entity;
 
@@ -24,7 +24,12 @@ var my_entity;
 // begin san
 // The bus stops that are displayed at the moment
 var highlighted_bus_stops;
-
+// Bus position update interval in milliseconds
+var siri_update_interval = 1000;
+// The last time of bus position update in milliseconds
+var last_siri_update_time = 0;
+// The visible bus entities
+var bus_entities = [];
 
 // end san
 
@@ -310,16 +315,7 @@ var OulubusvizHandler = IApplication.$extend(
 
 		// begin samuli
         // TODO : Add Oulu data
-        var transfer = Tundra.asset.requestAsset("http://data.itsfactory.fi/siriaccess/vm/json", ".json");
-        
-        //console.log(transfer);
-        if (transfer != null) {
-            transfer.onCompleted(this, this.onBusAssetTransferCompleted);
-        } 
-        else 
-        {
-            console.log("transfer == null");
-        }
+        $.getJSON("http://data.itsfactory.fi/siriaccess/vm/json", this.onBusAssetTransferCompleted);
 		// end samuli
 
 		// begin san
@@ -366,6 +362,15 @@ var OulubusvizHandler = IApplication.$extend(
     {
         var pos = this.my_entity.component("Placeable").transform.pos;
         this.my_entity.component("Placeable").setPosition(pos.x + 0.1, pos.y, pos.z);
+
+        // Update the bus positions
+        var d = new Date();
+        var delta_time = d.getTime() - last_siri_update_time;
+        if (delta_time > siri_update_interval)
+        {
+            last_siri_update_time = d.getTime();
+            $.getJSON("http://data.itsfactory.fi/siriaccess/vm/json", this.onBusAssetTransferCompleted);
+        }
     },
 
     onActiveCameraChanged : function(activeCameraComponent, prevCameraComponent)
@@ -407,9 +412,9 @@ var OulubusvizHandler = IApplication.$extend(
 	// end thang
 
 	// begin samuli
-	onBusAssetTransferCompleted: function(asset)
+	onBusAssetTransferCompleted: function(data)
     {
-        var items = asset.data["Siri"]["ServiceDelivery"]["VehicleMonitoringDelivery"][0]["VehicleActivity"];
+        var items = data["Siri"]["ServiceDelivery"]["VehicleMonitoringDelivery"][0]["VehicleActivity"];
         //console.log(items);
         //var jsMap = JSON.parse(items);
         
@@ -418,27 +423,37 @@ var OulubusvizHandler = IApplication.$extend(
         
         if (items)
         {
+            // Remove the previous busses from the scene
+            if (null != bus_entities)
+            {
+                for (var a = 0; a < bus_entities.length; a++)
+                {
+                    if (null != bus_entities[a])
+                    {
+                        Tundra.scene.removeEntity(bus_entities[a].id);
+                    }
+                }
+                bus_entities = null;
+            }
+            bus_entities = [];
+        
             //var items = obj;
             for (var i = 0; i < items.length; i++)
             {
                 var oneItem = items[i];
   
                 var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
-                console.log(bus_coord);
                 
                 var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseFloat(bus_coord["Latitude"]), parseFloat(bus_coord["Longitude"]));
                 //console.log(bus_pos);
  
-                var bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
+                bus_entities[i] = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
  
-                bus_entity.name = "ent_"+i;
-                bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 150.0, bus_pos.z));
-                bus_entity.billboard.materialRef = "https://dl.dropboxusercontent.com/u/3127934/oulubusviz/bus.png";
-                bus_entity.billboard.height = 150.0;
-                bus_entity.billboard.width = 150.0;
-                
-                console.log(bus_entity);
- 
+                bus_entities[i].name = "ent_"+i;
+                bus_entities[i].placeable.setPosition(new THREE.Vector3(bus_pos.x, 150.0, bus_pos.z));
+                bus_entities[i].billboard.materialRef = "https://dl.dropboxusercontent.com/u/3127934/oulubusviz/bus.png";
+                bus_entities[i].billboard.height = 150.0;
+                bus_entities[i].billboard.width = 150.0;
             }
         }
 	},
