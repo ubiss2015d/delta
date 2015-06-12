@@ -20,6 +20,7 @@ var asd = my_lat;
 var my_entity;
 
 
+
 // end samuli
 
 // begin san
@@ -373,6 +374,8 @@ var OulubusvizHandler = IApplication.$extend(
 		// begin samuli
         // TODO : Add Oulu data
         $.getJSON("http://data.itsfactory.fi/siriaccess/vm/json", this.onBusAssetTransferCompleted);
+        
+        this.cameraEnt = Tundra.scene.createLocalEntity(["Name", "Camera", "Placeable"]);
 		// end samuli
 
 		// begin san
@@ -581,7 +584,13 @@ var OulubusvizHandler = IApplication.$extend(
         
         var r = Tundra.renderer.raycast(undefined, undefined, undefined, bus_entities, true, false, false);
         console.log("--------------------");
-        console.log(r.object.tundraBillboard.myData);
+        //console.log(r.object.tundraBillboard.myData);
+        my_entity = Tundra.scene.entityByName(r.object.tundraBillboard.myData.id);
+        if (my_entity != null) {
+            this.cameraEnt.placeable.parentRef = r.object.tundraBillboard.myData.id;
+            this.cameraEnt.camera.setActive();
+        }
+        console.log(my_entity);
         
     },
 	// end samuli
