@@ -560,11 +560,9 @@ var OulubusvizHandler = IApplication.$extend(
                         bus_prev_locations[bus_entity.name] = bus_next_locations[bus_entity.name];
                         bus_next_locations[bus_entity.name] = bus_pos;
                     }
-					
-=======
+
                     bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
                     bus_entity.billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
->>>>>>> origin/master
                 }
             }
         }
