@@ -215,7 +215,6 @@ function check_new_buses()
 
 function drawHighlightedBusStops (coordinates)
 {
-	console.log('begin bus stops');
 	// TODO
 	// get actual coordinates...
 	if ( null == coordinates) {
@@ -243,7 +242,7 @@ function drawHighlightedBusStops (coordinates)
 		highlighted_bus_stops[k].component("Billboard").height = 150.0;
 		highlighted_bus_stops[k].component("Billboard").width = 100.0;
 		highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 0, pos.z);
-		highlighted_bus_stops[k].component("Billboard").materialRef = "google-map-icon-marker.png";
+		highlighted_bus_stops[k].component("Billboard").materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F0692CJ5S-c7157c1114/google-map-icon-marker_360.png";
 	}
 	console.log('end bus stops');
 }
@@ -388,7 +387,7 @@ var OulubusvizHandler = IApplication.$extend(
 	{
 		//billboard
 		//this.ent = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
-		this.my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+		/*this.my_entity = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
         // ent.component("Billboard"
         this.my_entity.component("Name").value = "test_billboard";
         //ent.component("Placeable").transform.pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(65.013439, 25.466228);
@@ -397,7 +396,7 @@ var OulubusvizHandler = IApplication.$extend(
         this.my_entity.component("Billboard").width = 200.0;
         this.my_entity.component("Placeable").setPosition(poz.x, 150.0, poz.z);
         this.my_entity.component("Billboard").materialRef = "https://cdn2.colorlib.com/wp/wp-content/uploads/sites/2/2014/02/Olympic-logo.png";
-		this.asd = 65.013439;
+		this.asd = 65.013439;*/
 		
 		// Get the camera XML file and assign callback function 
 
@@ -416,8 +415,8 @@ var OulubusvizHandler = IApplication.$extend(
 
     onPreRender : function()
     {
-        var pos = this.my_entity.component("Placeable").transform.pos;
-        this.my_entity.component("Placeable").setPosition(pos.x + 0.1, pos.y, pos.z);
+        /*var pos = this.my_entity.component("Placeable").transform.pos;
+        this.my_entity.component("Placeable").setPosition(pos.x + 0.1, pos.y, pos.z);*/
 
         // Update the bus positions
         var d = new Date();
@@ -501,6 +500,7 @@ var OulubusvizHandler = IApplication.$extend(
                     var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseFloat(bus_coord["Latitude"]), parseFloat(bus_coord["Longitude"]));
      
                     bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
+                    bus_entities[i].billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
                 }
             }
         }

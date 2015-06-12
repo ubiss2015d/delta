@@ -20,6 +20,6 @@ while($row = $result->fetch_assoc())
 	$response_xml .= "\t</stop>\n";
 }
 $result->close();
-$response_xml .= "</busses>";
+$response_xml .= "</bus_stops>";
 echo $response_xml;
 ?>
