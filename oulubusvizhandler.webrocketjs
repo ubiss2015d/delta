@@ -172,6 +172,7 @@ function check_new_buses()
 						.easing(TWEEN.Easing.Linear.None)
 						.onUpdate(function()
 						{
+							//console.log('moving', this.x, this.z);
 							new_bus.root.translateX(this.x);
 							new_bus.root.translateZ(this.z);
 						});
