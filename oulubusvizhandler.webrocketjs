@@ -1,6 +1,6 @@
 // begin thang
 var updated_time = 0;
-highlighted_bus_stops = [];
+var show_bus_stops = true;
 // end thang
 
 // begin samuli
@@ -244,7 +244,6 @@ function drawHighlightedBusStops (coordinates)
 		highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 0, pos.z);
 		highlighted_bus_stops[k].component("Billboard").materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F0692CJ5S-c7157c1114/google-map-icon-marker_360.png";
 	}
-	console.log('end bus stops');
 }
 
 function get_bus_stops()
@@ -381,8 +380,44 @@ var OulubusvizHandler = IApplication.$extend(
         Tundra.plugins.meshmoonGeo.setupEnvironment();
         // Connect the prerender function
         Tundra.frame.onPreRender(this, this.onPreRender);
+
+		this.initUi();
     },
-	
+
+	initUi : function()
+	{
+		var button = document.createElement("paper-button");
+		button.setAttribute("raised", true);
+		button.innerHTML = "Hide Bus Stops";
+		$(button).css({
+			position: "absolute",
+			background: "green",
+			top : "120px",
+			right : "0px"
+		});
+		Tundra.ui.add(button);
+		button.hidden = false;
+		button.addEventListener("click", this.busstopToggle);
+	},
+
+	busstopToggle : function()
+	{
+		if (show_bus_stops)
+		{
+			show_bus_stops = false;
+			this.innerHTML = 'Show Bus Stops';
+		}
+		else
+		{
+			show_bus_stops = true;
+			this.innerHTML = 'Hide Bus Stops';
+		}
+		for (i=0; i<highlighted_bus_stops.length; i++)
+		{
+			highlighted_bus_stops[i].placeable.visible = show_bus_stops;
+		}
+	},
+
 	onDependenciesLoaded : function()
 	{
 		//billboard
@@ -511,6 +546,7 @@ var OulubusvizHandler = IApplication.$extend(
                     bus_entities[i].billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
                     bus_entities[i].billboard.height = 150.0;
                     bus_entities[i].billboard.width = 150.0;
+					
                 }
             }
         }
