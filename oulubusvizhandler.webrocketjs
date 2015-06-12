@@ -242,7 +242,7 @@ function drawHighlightedBusStops (coordinates)
 		highlighted_bus_stops[k].component("Billboard").height = 150.0;
 		highlighted_bus_stops[k].component("Billboard").width = 100.0;
 		highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 0, pos.z);
-		highlighted_bus_stops[k].component("Billboard").materialRef = "google-map-icon-marker.png";
+		highlighted_bus_stops[k].component("Billboard").materialRef = "https://files.slack.com/files-pri/T0645GZNK-F0692CJ5S/google-map-icon-marker.png";
 	}
 	console.log('end bus stops');
 }
@@ -508,7 +508,7 @@ var OulubusvizHandler = IApplication.$extend(
      
                     bus_entities[i].name = oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"];
                     bus_entities[i].placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
-                    bus_entities[i].billboard.materialRef = "bus.png";
+                    bus_entities[i].billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
                     bus_entities[i].billboard.height = 150.0;
                     bus_entities[i].billboard.width = 150.0;
                 }
