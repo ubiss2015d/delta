@@ -513,40 +513,39 @@ var OulubusvizHandler = IApplication.$extend(
         
         if (items)
         {
-            // Remove the previous busses from the scene
-            if (null != bus_entities)
-            {
-                for (var a = 0; a < bus_entities.length; a++)
-                {
-                    if (null != bus_entities[a])
-                    {
-                        Tundra.scene.removeEntity(bus_entities[a].id);
-                    }
-                }
-                bus_entities = null;
-            }
-            bus_entities = [];
-        
             //var items = obj;
             for (var i = 0; i < items.length; i++)
             {
                 var oneItem = items[i];
+
                 // Prevent busses with empty names
                 if(oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"].length > 0)
                 {
-                    var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
+                    var bus_entity = Tundra.scene.entityByName(oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"]);
+                    if(bus_entity == null)
+                    {
+                        bus_entity = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
+                        bus_entity.name = oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"];
+                        bus_entity.billboard.materialRef = "bus.png";
+                        bus_entity.billboard.height = 150.0;
+                        bus_entity.billboard.width = 150.0;
+                    }
                     
+                    var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
                     var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseFloat(bus_coord["Latitude"]), parseFloat(bus_coord["Longitude"]));
                     //console.log(bus_pos);
      
-                    bus_entities[i] = Tundra.scene.createLocalEntity(["Name", "Billboard", "Placeable"]);
-     
+<<<<<<< HEAD
                     bus_entities[i].name = oneItem["MonitoredVehicleJourney"]["VehicleRef"]["value"];
                     bus_entities[i].placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
                     bus_entities[i].billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
                     bus_entities[i].billboard.height = 150.0;
                     bus_entities[i].billboard.width = 150.0;
 					
+=======
+                    bus_entity.placeable.setPosition(new THREE.Vector3(bus_pos.x, 0, bus_pos.z));
+                    bus_entity.billboard.materialRef = "https://slack-files.com/files-tmb/T0645GZNK-F064F7G3C-67e9ee3b81/funny_bus_text_1024.png";
+>>>>>>> origin/master
                 }
             }
         }
