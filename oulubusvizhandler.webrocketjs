@@ -1,20 +1,21 @@
 // begin thang
 var updated_time = 0;
+highlighted_bus_stops = [];
 // end thang
 
 // begin samuli
 
 // Tampere coordinates
-/*
+
 var my_lat = 61.4981503;
 var my_lon = 23.7610254;
-*/
+
 
 // Oulu coordinates
-
+/*
 var my_lat = 65.002916;
 var my_lon = 25.465702;
-
+*/
 var asd = my_lat;
 var my_entity;
 
@@ -207,6 +208,59 @@ function check_new_buses()
 	//	setTimeout(check_new_buses, 5000);
 }
 
+function drawHighlightedBusStops (coordinates)
+{
+	console.log('begin bus stops');
+	// TODO
+	// get actual coordinates...
+	if ( null == coordinates) {
+		coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
+	}
+
+	// Remove the previous stops
+	if (null != highlighted_bus_stops)
+	{
+		for (var i = 0; i < highlighted_bus_stops.length; i++)
+		{
+			Tundra.renderer.scene.remove (highlighted_bus_stops[i]);
+		}
+		highlighted_bus_stops = null;
+	}
+	highlighted_bus_stops = [];
+
+	for (var k = 0; k < coordinates.length; k++)
+	{
+		highlighted_bus_stops[k] = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
+		var lat = parseFloat(coordinates[k]['stop_lat']['#text']);
+		var lon = parseFloat(coordinates[k]['stop_lon']['#text']);
+		//console.log('bus stop', lat, lon);
+		var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
+		highlighted_bus_stops[k].component("Billboard").height = 150.0;
+		highlighted_bus_stops[k].component("Billboard").width = 100.0;
+		highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 100.0, pos.z);
+		highlighted_bus_stops[k].component("Billboard").materialRef = "google-map-icon-marker.png";
+	}
+	console.log('end bus stops');
+}
+
+function get_bus_stops()
+{
+	$.ajax({
+		type: "GET",
+		url: "http://localhost/oulunbussyviz/stops.php",
+		cache: false,
+		dataType: "xml",
+		success: function(xml) {
+			stops_data = xmlToJson(xml);
+			bus_details = [];
+			console.log(stops_data);
+			drawHighlightedBusStops(stops_data.bus_stops.stop);
+		}
+	});
+	
+	
+}
+
 function drawHighlightedRoute(coordinates)
 {
 	// TODO
@@ -306,7 +360,8 @@ var OulubusvizHandler = IApplication.$extend(
 		
 		
 		// begin thang
-		check_new_buses();
+		// check_new_buses();
+		get_bus_stops();
 		// end thang
 
 		// begin samuli
@@ -324,7 +379,7 @@ var OulubusvizHandler = IApplication.$extend(
 		// end samuli
 
 		// begin san
-        this.drawHighlightedBusStops(null);
+        //this.drawHighlightedBusStops(null);
 		// end san
 
         // Setup default environment
@@ -425,7 +480,7 @@ var OulubusvizHandler = IApplication.$extend(
                 var oneItem = items[i];
   
                 var bus_coord = oneItem["MonitoredVehicleJourney"]["VehicleLocation"];
-                console.log(bus_coord);
+                //console.log(bus_coord);
                 
                 var bus_pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(parseFloat(bus_coord["Latitude"]), parseFloat(bus_coord["Longitude"]));
                 //console.log(bus_pos);
@@ -438,7 +493,7 @@ var OulubusvizHandler = IApplication.$extend(
                 bus_entity.billboard.height = 150.0;
                 bus_entity.billboard.width = 150.0;
                 
-                console.log(bus_entity);
+                //console.log(bus_entity);
  
             }
         }
@@ -446,37 +501,7 @@ var OulubusvizHandler = IApplication.$extend(
 	// end samuli
 
 	// begin san
-	    drawHighlightedBusStops : function (coordinates)
-    {
-        // TODO
-        // get actual coordinates...
-        if ( null == coordinates) {
-            coordinates = [ [65.015709,25.470789], [65.016709,25.470089], [65.017709,25.471789], [65.016709,25.472789] ];
-        }
-
-        // Remove the previous stops
-        if (null != this.highlighted_bus_stops)
-        {
-            for (var i = 0; i < this.highlighted_bus_stops.length; i++)
-            {
-                Tundra.renderer.scene.remove (this.highlighted_bus_stops[i]);
-            }
-            this.highlighted_bus_stops = null;
-        }
-        this.highlighted_bus_stops = [];
-
-        for (var k = 0; k < coordinates.length; k++)
-        {
-            this.highlighted_bus_stops[k] = Tundra.scene.createLocalEntity(["Name", "Placeable", "Billboard"]);
-            var lat = parseFloat(coordinates[k][0]);
-            var lon = parseFloat(coordinates[k][1]);
-            var pos = Tundra.plugins.meshmoonGeo.coordinates.latLonToWorldPosition(lat, lon);
-            this.highlighted_bus_stops[k].component("Billboard").height = 150.0;
-            this.highlighted_bus_stops[k].component("Billboard").width = 100.0;
-            this.highlighted_bus_stops[k].component("Placeable").setPosition(pos.x, 100.0, pos.z);
-            this.highlighted_bus_stops[k].component("Billboard").materialRef = "http://images.clipartpanda.com/google-map-icon-marker.png";
-        }
-    },
+	
 
 	// end san
 
