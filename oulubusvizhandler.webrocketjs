@@ -499,7 +499,7 @@ var OulubusvizHandler = IApplication.$extend(
             this.state.camera.configured = true;
             this.timing.async("rts.config", function() {
                 this.camera.exec(EntityAction.Local, "SetRotation", { x : -40, y : 0, z : 0 });
-                this.camera.exec(EntityAction.Local, "SetDistance", 3000);
+                this.camera.exec(EntityAction.Local, "SetDistance", 8000);
                 this.camera.exec(EntityAction.Local, "SetMinDistance", 200);
                 this.camera.exec(EntityAction.Local, "SetMaxDistance", this.camera.camera.farPlane * 0.4);
             }, 100);
