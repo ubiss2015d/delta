@@ -39,7 +39,7 @@ error_reporting(E_ALL);
 // Database configuration
 
 $db_server   = 'localhost';
-$db_name     = 'oulunbussyviz';
+$db_name     = 'tampere_bus';
 $db_username = 'root';
 $db_password = ''; 
 
@@ -51,7 +51,7 @@ $db_connection_charset = 'utf8';
 
 // OPTIONAL SETTINGS 
 
-$filename           = 'ubi_traffic.sql';     // Specify the dump filename to suppress the file selection dialog
+$filename           = 'tampere_bus.sql';     // Specify the dump filename to suppress the file selection dialog
 $ajax               = true;   // AJAX mode: import will be done without refreshing the website
 $linespersession    = 3000;   // Lines to be executed per one import session
 $delaypersession    = 0;      // You can specify a sleep time in milliseconds after each session
